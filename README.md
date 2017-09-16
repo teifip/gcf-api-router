@@ -50,7 +50,7 @@ npm install gcf-api-router --save
 
 ### Usage
 
-The API router can be instantiated in either one of two possible options. The difference is merely a style preference.
+The API router can be instantiated following either one of two possible options. The difference is merely a style preference.
 
 ```javascript
 // OPTION #1
@@ -87,11 +87,11 @@ A regular expression within parentheses can be used to have more control over th
 router.route('/user/:userId(\\d+)')
 ```
 
-In the above example, note the escaping of `\` due to the fact that regular expression is part of a string.
+In the above example, note the escaping of `\` due to the fact that the regular expression is part of a string.
 
 **router.get(requestHandler)**
 
-Specifies the request handler to be used for GET requests. Must always be chained to a `router.route` method or to another `router.{httpMethod}` method. The chaining order of different `router.{httpMethod}` methods is irrelevant. `requestHandler` must a function that accepts `(req, res)` as arguments.
+Specifies the request handler to be used for GET requests. Must always be chained to a `router.route` method or to another `router.{httpMethod}` method. The chaining order of different `router.{httpMethod}` methods is irrelevant. `requestHandler` must a function that accepts `(req, res)` as arguments. If appropriate, the same `requestHandler` can be associated with multiple routes/methods.
 
 **router.post(requestHandler)**
 
