@@ -7,6 +7,19 @@ module.exports = function() {
 function RequestHandler() {
   this.idx = null;
   this.routes = [];
+
+  function onRequest(req, res) {
+    let requestHandler = findRequestHandler(req, this.routes);
+    if (requestHandler) {
+      requestHandler(req, res);
+    } else if (this.notFoundHandler === undefined) {
+      res.status(404).send();
+    } else {
+      this.notFoundHandler(req, res);
+    }
+  }
+
+  this.onRequest = onRequest.bind(this);
 }
 
 RequestHandler.prototype.route = function(path) {
@@ -67,19 +80,10 @@ RequestHandler.prototype.notFound = function(onRequest) {
   }
 }
 
-RequestHandler.prototype.onRequest = function(req, res) {
-  let requestHandler = findRequestHandler(req, this.routes);
-  if (requestHandler) {
-    requestHandler(req, res);
-  } else if (this.notFound === undefined) {
-    res.status(404).send();
-  } else {
-    this.notFoundHandler(req, res);
-  }
-}
-
 function findRequestHandler(req, routes) {
-  let path = req.params[0] !== '' ? req.params[0] : '/';
+  let path = req.params[0].charAt(0) !== '/'
+           ? '/' + req.params[0]
+           : req.params[0];
   for (let route of routes) {
     let match = route.pathRegex.exec(path);
     if (match && route.pathMethods[req.method]) {
