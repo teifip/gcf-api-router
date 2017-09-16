@@ -107,6 +107,10 @@ Same as `router.get` above, but for POST requests.
 
 Same as `router.get` above, but for PUT requests.
 
+**router.patch(requestHandler)**
+
+Same as `router.get` above, but for PATCH requests.
+
 **router.delete(requestHandler)**
 
 Same as `router.get` above, but for DELETE requests.

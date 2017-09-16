@@ -58,6 +58,11 @@ RequestHandler.prototype.delete = function(onRequest) {
   return addMethodToRoute('DELETE', onRequest);
 }
 
+RequestHandler.prototype.patch = function(onRequest) {
+  let addMethodToRoute = addMethod.bind(this);
+  return addMethodToRoute('PATCH', onRequest);
+}
+
 function addMethod(method, onRequest) {
   if (typeof onRequest !== 'function') {
     throw new TypeError('Argument must be a function');
