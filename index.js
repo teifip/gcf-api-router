@@ -58,12 +58,23 @@ function addMethod(method, onRequest) {
   return this;
 };
 
+RequestHandler.prototype.notFound = function(onRequest) {
+  if (typeof onRequest !== 'function') {
+    throw new TypeError('Argument must be a function');
+  }
+  if (this.notFoundHandler === undefined) {
+    this.notFoundHandler = onRequest;
+  }
+}
+
 RequestHandler.prototype.onRequest = function(req, res) {
   let requestHandler = findRequestHandler(req, this.routes);
   if (requestHandler) {
     requestHandler(req, res);
-  } else {
+  } else if (this.notFound === undefined) {
     res.status(404).send();
+  } else {
+    this.notFoundHandler(req, res);
   }
 }
 

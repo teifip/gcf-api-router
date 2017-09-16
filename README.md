@@ -42,6 +42,12 @@ function showModel(req, res) {
 
 In the above example, `basePath` is the path associated with your Google Cloud Function, i.e. the name of the function itself.
 
+The API router automatically replies `404 Not Found` - with no body and no event logging - to requests that do not match any of the specified routes. When needed, the behavior can be customized by assigning a dedicated handler to the not found case:
+
+```javascript
+router.notFound(notFoundHandler);
+```
+
 ### Installation
 
 ```
@@ -91,7 +97,7 @@ In the above example, note the escaping of `\` due to the fact that the regular 
 
 **router.get(requestHandler)**
 
-Specifies the request handler to be used for GET requests. Must always be chained to a `router.route` method or to another `router.{httpMethod}` method. The chaining order of different `router.{httpMethod}` methods is irrelevant. `requestHandler` must a function that accepts `(req, res)` as arguments. If appropriate, the same `requestHandler` can be associated with multiple routes/methods.
+Specifies the request handler to be used for GET requests. Must always be chained to a `router.route` method or to another `router.{httpMethod}` method. The chaining order of different `router.{httpMethod}` methods is irrelevant. `requestHandler` must be a function that accepts `(req, res)` as arguments. If appropriate, the same `requestHandler` can be associated with multiple routes/methods.
 
 **router.post(requestHandler)**
 
@@ -104,3 +110,7 @@ Same as `router.get` above, but for PUT requests.
 **router.delete(requestHandler)**
 
 Same as `router.get` above, but for DELETE requests.
+
+**router.notFound(requestHandler)**
+
+Specifies the request handler to be used for requests that do not match any of the defined routes/methods. `requestHandler` must be a function that accepts `(req, res)` as arguments. If the `router.notFound` method is not used, then the API router simply replies `404 Not Found` - with no body and no event logging - to requests that do not match any of the defined routes/methods.
