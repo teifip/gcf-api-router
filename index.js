@@ -63,6 +63,11 @@ RequestHandler.prototype.patch = function(onRequest) {
   return addMethodToRoute('PATCH', onRequest);
 }
 
+RequestHandler.prototype.options = function(onRequest) {
+  let addMethodToRoute = addMethod.bind(this);
+  return addMethodToRoute('OPTIONS', onRequest);
+}
+
 function addMethod(method, onRequest) {
   if (typeof onRequest !== 'function') {
     throw new TypeError('Argument must be a function');

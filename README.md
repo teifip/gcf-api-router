@@ -77,6 +77,17 @@ This is the method that must be exported as entry point of the Google Cloud HTTP
 exports.myApiHandler = router.onRequest;
 ```
 
+Alternatively, in case every HTTP request must undergo some processing/verification/logging common to all routes, the `router.onRequest` method can be used in the following manner:
+
+```javascript
+exports.myApiHandler = function(req, res) {
+
+  // Some request processing/verification/logging here
+
+  router.onRequest(req, res);
+}
+```
+
 **router.route(path)**
 
 Specifies a route path. The route path can include parameters encoded in accordance with the Express.js [route path conventions](http://expressjs.com/en/guide/routing.html). Those conventions enable also compound names like the following:
@@ -114,6 +125,10 @@ Same as `router.get` above, but for PATCH requests.
 **router.delete(requestHandler)**
 
 Same as `router.get` above, but for DELETE requests.
+
+**router.options(requestHandler)**
+
+Same as `router.get` above, but for OPTIONS requests.
 
 **router.notFound(requestHandler)**
 
