@@ -1,10 +1,10 @@
 const pathToRegexp = require('path-to-regexp');
 
-module.exports = function() {
-  return new RequestHandler();
-}
-
 function RequestHandler() {
+  if (!(this instanceof RequestHandler)) {
+    return new RequestHandler();
+  }
+
   this.idx = null;
   this.routes = [];
 
@@ -29,7 +29,6 @@ RequestHandler.prototype.route = function(path) {
   let pathKeys = [];
   let pathRegex = pathToRegexp(path, pathKeys);
   this.routes.push({
-    path: path,
     pathRegex: pathRegex,
     pathKeys: pathKeys.map(key => key.name),
     pathMethods: {}
@@ -39,33 +38,27 @@ RequestHandler.prototype.route = function(path) {
 }
 
 RequestHandler.prototype.get = function(onRequest) {
-  let addMethodToRoute = addMethod.bind(this);
-  return addMethodToRoute('GET', onRequest);
+  return addMethod.call(this, 'GET', onRequest);
 }
 
 RequestHandler.prototype.post = function(onRequest) {
-  let addMethodToRoute = addMethod.bind(this);
-  return addMethodToRoute('POST', onRequest);
+  return addMethod.call(this, 'POST', onRequest);
 }
 
 RequestHandler.prototype.put = function(onRequest) {
-  let addMethodToRoute = addMethod.bind(this);
-  return addMethodToRoute('PUT', onRequest);
+  return addMethod.call(this, 'PUT', onRequest);
 }
 
 RequestHandler.prototype.delete = function(onRequest) {
-  let addMethodToRoute = addMethod.bind(this);
-  return addMethodToRoute('DELETE', onRequest);
+  return addMethod.call(this, 'DELETE', onRequest);
 }
 
 RequestHandler.prototype.patch = function(onRequest) {
-  let addMethodToRoute = addMethod.bind(this);
-  return addMethodToRoute('PATCH', onRequest);
+  return addMethod.call(this, 'PATCH', onRequest);
 }
 
 RequestHandler.prototype.options = function(onRequest) {
-  let addMethodToRoute = addMethod.bind(this);
-  return addMethodToRoute('OPTIONS', onRequest);
+  return addMethod.call(this, 'OPTIONS', onRequest);
 }
 
 function addMethod(method, onRequest) {
@@ -114,3 +107,5 @@ function decode(value) {
     return null;
   }
 }
+
+module.exports = RequestHandler;

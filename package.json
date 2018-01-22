@@ -1,6 +1,6 @@
 {
   "name": "gcf-api-router",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Express-style API router for Google Cloud Functions",
   "main": "index.js",
   "repository": {
@@ -10,7 +10,8 @@
   "keywords": [
     "Google Cloud Functions",
     "API",
-    "router"
+    "router",
+    "serverless"
   ],
   "bugs": {
     "url": "https://github.com/teifip/gcf-api-router/issues"
@@ -19,6 +20,6 @@
   "author": "Paolo Fiorini <teifip@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "path-to-regexp": "^2.0.0"
+    "path-to-regexp": "^2.1.0"
   }
 }
