@@ -9,13 +9,13 @@ function RequestHandler() {
   this.routes = [];
 
   function onRequest(req, res) {
-    let requestHandler = findRequestHandler(req, this.routes);
-    if (requestHandler) {
-      requestHandler(req, res);
-    } else if (this.notFoundHandler === undefined) {
+    let requestHandlers = findRequestHandlers(req, this.routes);
+    if (requestHandlers) {
+      executeRequestHandlers(req, res, requestHandlers, 0);
+    } else if (this.notFoundHandlers === undefined) {
       res.status(404).send();
     } else {
-      this.notFoundHandler(req, res);
+      executeRequestHandlers(req, res, this.notFoundHandlers, 0);
     }
   }
 
@@ -37,33 +37,33 @@ RequestHandler.prototype.route = function(path) {
   return this;
 }
 
-RequestHandler.prototype.get = function(onRequest) {
+RequestHandler.prototype.get = function(...onRequest) {
   return addMethod.call(this, 'GET', onRequest);
 }
 
-RequestHandler.prototype.post = function(onRequest) {
+RequestHandler.prototype.post = function(...onRequest) {
   return addMethod.call(this, 'POST', onRequest);
 }
 
-RequestHandler.prototype.put = function(onRequest) {
+RequestHandler.prototype.put = function(...onRequest) {
   return addMethod.call(this, 'PUT', onRequest);
 }
 
-RequestHandler.prototype.delete = function(onRequest) {
+RequestHandler.prototype.delete = function(...onRequest) {
   return addMethod.call(this, 'DELETE', onRequest);
 }
 
-RequestHandler.prototype.patch = function(onRequest) {
+RequestHandler.prototype.patch = function(...onRequest) {
   return addMethod.call(this, 'PATCH', onRequest);
 }
 
-RequestHandler.prototype.options = function(onRequest) {
+RequestHandler.prototype.options = function(...onRequest) {
   return addMethod.call(this, 'OPTIONS', onRequest);
 }
 
 function addMethod(method, onRequest) {
-  if (typeof onRequest !== 'function') {
-    throw new TypeError('Argument must be a function');
+  if (onRequest.length === 0 || onRequest.some(a => typeof a !== 'function')) {
+    throw new TypeError('Must specify one or more functions as arguments');
   }
   if (this.idx === null) {
     throw new Error(`Cannot add ${method} handler for undefined route`);
@@ -74,16 +74,16 @@ function addMethod(method, onRequest) {
   return this;
 };
 
-RequestHandler.prototype.notFound = function(onRequest) {
-  if (typeof onRequest !== 'function') {
-    throw new TypeError('Argument must be a function');
+RequestHandler.prototype.notFound = function(...onRequest) {
+  if (onRequest.length === 0 || onRequest.some(a => typeof a !== 'function')) {
+    throw new TypeError('Must specify one or more functions as arguments');
   }
-  if (this.notFoundHandler === undefined) {
-    this.notFoundHandler = onRequest;
+  if (this.notFoundHandlers === undefined) {
+    this.notFoundHandlers = onRequest;
   }
 }
 
-function findRequestHandler(req, routes) {
+function findRequestHandlers(req, routes) {
   let path = req.params[0].charAt(0) !== '/'
            ? '/' + req.params[0]
            : req.params[0];
@@ -105,6 +105,16 @@ function decode(value) {
     return decodeURIComponent(value);
   } catch (error) {
     return null;
+  }
+}
+
+function executeRequestHandlers(req, res, handlers, idx) {
+  if (idx === handlers.length - 1) {
+    handlers[idx](req, res);
+  } else {
+    handlers[idx](req, res, () => {
+      executeRequestHandlers(req, res, handlers, ++idx);
+    });
   }
 }
 

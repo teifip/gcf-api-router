@@ -25,7 +25,7 @@ exports.myApiHandler = router.onRequest;
 
 Each individual route/method handler must be designed to expect `(req, res)` as input arguments.
 
-This module uses [path-to-regex](https://github.com/pillarjs/path-to-regexp) for matching the route paths. Therefore, route parameters can be specified following the [route path conventions](http://expressjs.com/en/guide/routing.html) of Express.js. When a specific route includes parameters, the `req.params` property is updated with the actual set of parameter keys/values before invoking the route/method handler.
+This module uses [path-to-regex](https://github.com/pillarjs/path-to-regexp) for matching the route paths. Therefore, route parameters can be specified following the [route path conventions](http://expressjs.com/en/guide/routing.html) of [Express](http://expressjs.com/). When a specific route includes parameters, the `req.params` property is updated with the actual set of parameter keys/values before invoking the route/method handler.
 
 Example:
 
@@ -46,6 +46,49 @@ The API router automatically replies `404 Not Found` - with no body and no event
 
 ```javascript
 router.notFound(notFoundHandler);
+```
+
+Multiple handlers can be defined for each individual route/method and for the not found case. Example:
+
+```javascript
+router.route('/sensors/:id/status')
+      .get(showStatus)
+      .put(enforceAuthorization, updateStatus);
+
+router.notFound(doSomething, doSomethingElse);
+```
+
+When multiple handlers are used, each handler that is not the last of the list must be designed to expect `(req, res, next)` as input arguments, and to invoke `next()` to pass the control to the next following handler in the list. Example:
+
+```javascript
+function doSomething(req, res, next) {
+  if (someCondition) {
+    // Respond without executing next handler
+    res.status(400).send();
+  } else {
+    // Pass control to next handler
+    next();
+  }
+}
+
+function doSomethingElse(req, res) {
+  res.send('Both handlers have been invoked in sequence');
+}
+```
+
+This approach enables the direct reuse of some of the middleware designed for [Express](http://expressjs.com/). As an example, the following snippet illustrates the use of the [cookie-parser](https://www.npmjs.com/package/cookie-parser) package.
+
+```javascript
+const cookieParser = require('cookie-parser')();
+
+router.route('/sensors/:id/status')
+      .get(cookieParser, showStatus);
+
+function showStatus(req, res) {
+  // Find parsed cookies in req.cookies
+
+  res.json(someData);
+}
 ```
 
 ### Installation
@@ -90,7 +133,7 @@ exports.myApiHandler = function(req, res) {
 
 **router.route(path)**
 
-Specifies a route path. The route path can include parameters encoded in accordance with the Express.js [route path conventions](http://expressjs.com/en/guide/routing.html). Those conventions enable also compound names like the following:
+Specifies a route path. The route path can include parameters encoded in accordance with the [route path conventions](http://expressjs.com/en/guide/routing.html) of [Express](http://expressjs.com/). Those conventions enable also compound names like the following:
 
 ```javascript
 router.route('/flights/:from-:to')
@@ -106,30 +149,38 @@ router.route('/user/:userId(\\d+)')
 
 In the above example, note the escaping of `\` due to the fact that the regular expression is part of a string.
 
-**router.get(requestHandler)**
+**router.get(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
-Specifies the request handler to be used for GET requests. Must always be chained to a `router.route` method or to another `router.{httpMethod}` method. The chaining order of different `router.{httpMethod}` methods is irrelevant. `requestHandler` must be a function that accepts `(req, res)` as arguments. If appropriate, the same `requestHandler` can be associated with multiple routes/methods.
+Specifies one or more request handlers to be invoked in sequence for GET requests. The `router.get` method must always be chained to a `router.route` method or to another `router.{httpMethod}` method. The chaining order of different `router.{httpMethod}` methods is irrelevant.
 
-**router.post(requestHandler)**
+`reqHandler` must be a function that accepts `(req, res)` as arguments. When multiple handlers are specified, all handlers except the last of the sequence must also accept `next` as argument, i.e. `(req, res, next)`.
+
+If appropriate, the same `requestHandler` can be associated with multiple routes/methods.
+
+**router.post(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
 Same as `router.get` above, but for POST requests.
 
-**router.put(requestHandler)**
+**router.put(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
 Same as `router.get` above, but for PUT requests.
 
-**router.patch(requestHandler)**
+**router.patch(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
 Same as `router.get` above, but for PATCH requests.
 
-**router.delete(requestHandler)**
+**router.delete(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
 Same as `router.get` above, but for DELETE requests.
 
-**router.options(requestHandler)**
+**router.options(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
 Same as `router.get` above, but for OPTIONS requests.
 
-**router.notFound(requestHandler)**
+**router.notFound(reqHandler[, reqHandler2] ... [, reqHandlerN])**
 
-Specifies the request handler to be used for requests that do not match any of the defined routes/methods. `requestHandler` must be a function that accepts `(req, res)` as arguments. If the `router.notFound` method is not used, then the API router simply replies `404 Not Found` - with no body and no event logging - to requests that do not match any of the defined routes/methods.
+Specifies one or more request handlers to be invoked in sequence for requests that do not match any of the defined routes/methods.
+
+`reqHandler` must be a function that accepts `(req, res)` as arguments. When multiple handlers are specified, all handlers except the last of the sequence must also accept `next` as argument, i.e. `(req, res, next)`.
+
+If the `router.notFound` method is not used, then the API router simply replies `404 Not Found` - with no body and no event logging - to requests that do not match any of the defined routes/methods.
