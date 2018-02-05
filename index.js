@@ -84,9 +84,7 @@ RequestHandler.prototype.notFound = function(...onRequest) {
 }
 
 function findRequestHandlers(req, routes) {
-  let path = req.params[0].charAt(0) !== '/'
-           ? '/' + req.params[0]
-           : req.params[0];
+  let path = req.path || '/';
   for (let route of routes) {
     let match = route.pathRegex.exec(path);
     if (match && route.pathMethods[req.method]) {
