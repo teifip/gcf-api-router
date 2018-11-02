@@ -1,6 +1,6 @@
 {
   "name": "gcf-api-router",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Express-style API router for Google Cloud Functions",
   "main": "index.js",
   "repository": {
@@ -20,6 +20,6 @@
   "author": "Paolo Fiorini <teifip@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "path-to-regexp": "^2.1.0"
+    "path-to-regexp": "^2.4.0"
   }
 }

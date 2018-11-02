@@ -99,6 +99,7 @@ function findRequestHandlers(req, routes) {
 }
 
 function decode(value) {
+  if (!value) return value;
   try {
     return decodeURIComponent(value);
   } catch (error) {
